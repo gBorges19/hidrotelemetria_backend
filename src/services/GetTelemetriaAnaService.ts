@@ -2,7 +2,7 @@ import axios from 'axios';
 import {toJson,JsonOptions} from 'xml2json';
 
 interface IResponseDTO {
-    hidroteletremia: ITargetAnaFields[];
+    hidrotelemetria: ITargetAnaFields[];
 }
 
 interface IRequestDTO {
@@ -18,7 +18,7 @@ interface ITargetAnaFields {
     Nivel: string;
     Chuva: string;
 }
-
+console.log('alo')
 class GetTelemetriaAnaService{
     public async execute ({cod_estacao,data_inicio,data_fim}:IRequestDTO): Promise<IResponseDTO> {
 
@@ -42,15 +42,13 @@ class GetTelemetriaAnaService{
         
         const telemetriaAnaResponseJson = toJson(telemetriaAnaResponse.data,options);
 
-        const dadosHidrometeorologicosFromJson = telemetriaAnaResponseJson.DataTable["diffgr:diffgram"].DocumentElement.DadosHidrometereologicos;
+        const dadosHidrometeorologicosFromJson = telemetriaAnaResponseJson.DataTable["diffgr:diffgram"].DocumentElement.DadosHidrometereologicos;  
 
-        //console.log(dadosHidrometeorologicos);        
-
-        const hidroteletremia = <ITargetAnaFields[]>[];
+        const hidrotelemetria = <ITargetAnaFields[]>[];
         
         dadosHidrometeorologicosFromJson.forEach(({CodEstacao,DataHora,Chuva,Nivel,Vazao}:ITargetAnaFields)=>{
 
-            hidroteletremia.push({
+            hidrotelemetria.push({
                 CodEstacao,
                 DataHora,
                 Chuva,
@@ -60,10 +58,10 @@ class GetTelemetriaAnaService{
 
         });
 
-        console.log(hidroteletremia);
+        console.log(hidrotelemetria);
 
         const responseDTO = {
-            hidroteletremia
+            hidrotelemetria
         } 
 
         return responseDTO;
