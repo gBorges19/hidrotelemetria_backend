@@ -1,5 +1,6 @@
 import axios from 'axios';
-import {toJson,JsonOptions} from 'xml2json';
+import {parseString} from 'xml2js';
+import {saveJsonAsCsvFile} from '../utils/csvFilesHandler';
 
 interface IResponseDTO {
     hidroteletremia: ITargetAnaFields[];
@@ -40,30 +41,38 @@ class GetTelemetriaAnaService{
             alternateTextNode: false
         };
         
-        const telemetriaAnaResponseJson = toJson(telemetriaAnaResponse.data,options);
+        let dadosHidrometeorologicosFromJson;
+        parseString(telemetriaAnaResponse.data, (err, result) => {
+            if(err) {
+                throw err;
+            }
 
-        const dadosHidrometeorologicosFromJson = telemetriaAnaResponseJson.DataTable["diffgr:diffgram"].DocumentElement.DadosHidrometereologicos;
-
-        //console.log(dadosHidrometeorologicos);        
-
-        const hidroteletremia = <ITargetAnaFields[]>[];
+            // `result` is a JavaScript object
+            const json = result;
+            // convert it to a JSON string
         
-        dadosHidrometeorologicosFromJson.forEach(({CodEstacao,DataHora,Chuva,Nivel,Vazao}:ITargetAnaFields)=>{
-
-            hidroteletremia.push({
-                CodEstacao,
-                DataHora,
-                Chuva,
-                Nivel,
-                Vazao
-            });
-
+            // log JSON string
+            dadosHidrometeorologicosFromJson = json.DataTable["diffgr:diffgram"][0].DocumentElement[0].DadosHidrometereologicos;
         });
 
-        console.log(hidroteletremia);
+        const hidroteletremia = <ITargetAnaFields[]>[];
+ 
+        if(dadosHidrometeorologicosFromJson){
+            dadosHidrometeorologicosFromJson.forEach(({CodEstacao,DataHora,Chuva,Nivel,Vazao}:ITargetAnaFields)=>{
+
+                hidroteletremia.push({
+                    CodEstacao:CodEstacao[0],
+                    DataHora:DataHora[0],
+                    Chuva:Chuva[0],
+                    Nivel:Nivel[0],
+                    Vazao:Vazao[0]
+                });
+    
+            });
+        }
 
         const responseDTO = {
-            hidroteletremia
+            hidroteletremia,
         } 
 
         return responseDTO;

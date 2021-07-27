@@ -6,4 +6,6 @@ const routes = Router();
 
 routes.use('/telemetriaInfo',telemetriaRouter);
 
+
+
 export default routes;
