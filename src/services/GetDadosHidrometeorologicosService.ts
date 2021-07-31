@@ -7,6 +7,7 @@ interface IResponseDTO {
 }
 
 interface IRequestDTO {
+    download: boolean;
     cod_estacao: string;
     data_inicio: string;
     data_fim: string;
@@ -20,17 +21,18 @@ interface ITargetAnaFields {
     Chuva: string;
 }
 
-class GetTelemetriaAnaService{
-    public async execute ({cod_estacao,data_inicio,data_fim}:IRequestDTO): Promise<IResponseDTO> {
-
+class GetDadosHidrometeorologicosService{
+    public async execute ({download,cod_estacao,data_inicio,data_fim}:IRequestDTO): Promise<IResponseDTO> {
+        
+        //console.log(cod_estacao,data_inicio,data_fim);
         const telemetriaAnaResponse = await axios.get('http://telemetriaws1.ana.gov.br/ServiceANA.asmx/DadosHidrometeorologicos',{
             params:{
                 codEstacao: cod_estacao,
                 dataInicio: data_inicio,
-                dataFim:data_fim,
+                dataFim: data_fim,
             }
         })
-        
+
         const options = {
             object: true,
             reversible: false,
@@ -56,7 +58,7 @@ class GetTelemetriaAnaService{
         });
 
         const hidroteletremia = <ITargetAnaFields[]>[];
- 
+        
         if(dadosHidrometeorologicosFromJson){
             dadosHidrometeorologicosFromJson.forEach(({CodEstacao,DataHora,Chuva,Nivel,Vazao}:ITargetAnaFields)=>{
 
@@ -80,4 +82,4 @@ class GetTelemetriaAnaService{
     }
 }
 
-export default GetTelemetriaAnaService;
+export default GetDadosHidrometeorologicosService;

@@ -1,17 +1,22 @@
 import { Request, Response } from 'express';
 
-import GetTelemetriaAnaService from '../services/GetTelemetriaAnaService';
+import {deleteCsvFile} from '../utils/csvFilesHandler';
+
 import GetEstacoesTelemetricasService from '../services/GetEstacoesTelemetricasService';
+import GetDadosHidrometeorologicosService from '../services/GetDadosHidrometeorologicosService';
+import GetDadosHidrometeorologicosByUfService from '../services/GetDadosHidrometeorologicosByUfService';
+
 
 
 export default class TelemetriaController {
   public async getTelemetria(request: Request, response: Response): Promise<Response> {
 
-    const { cod_estacao, data_inicio, data_fim } = request.params;
+    const {download, cod_estacao, data_inicio, data_fim} = request.body;
 
-    const getTelemetriaAna = new GetTelemetriaAnaService();
+    const getDadosHidrometeorologicos = new GetDadosHidrometeorologicosService();
 
-    const telemetria = await getTelemetriaAna.execute({
+    const telemetria = await getDadosHidrometeorologicos.execute({
+      download,
       cod_estacao,
       data_inicio,
       data_fim
@@ -22,7 +27,7 @@ export default class TelemetriaController {
 
   public async getEstacoes(request: Request, response: Response): Promise<Response> {
 
-    const {download,uf} = request.body;
+    const {download, uf} = request.body;
 
     const getEstacoesTelemetricasPorUf = new GetEstacoesTelemetricasService();
 
@@ -32,5 +37,33 @@ export default class TelemetriaController {
     });
 
     return response.json(telemetria);
+  }
+
+  public async getTelemetriaByUf(request: Request, response: Response): Promise<Response> {
+
+    const {download, uf, data_inicio, data_fim} = request.body;
+
+    const getDadosHidrometeorologicosByUf = new GetDadosHidrometeorologicosByUfService();
+
+    const telemetria = await getDadosHidrometeorologicosByUf.execute({
+      download,
+      target_uf:uf,
+      data_inicio,
+      data_fim
+    });
+
+    return response.json(telemetria);
+  }
+
+  public async downloadFile(request: Request, response: Response): Promise<void> {
+    const {filename} = request.params;
+    const file = `./src/temp/${filename}`;
+    response.download(file,(err) => {
+      if (err) {
+        console.log(err);
+        response.json({message:err})
+      }
+      deleteCsvFile(`./src/temp/${filename}`)
+    })
   }
 }

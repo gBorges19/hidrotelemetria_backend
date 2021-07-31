@@ -5,7 +5,7 @@ import {saveJsonAsCsvFile} from '../utils/csvFilesHandler';
 
 interface IResponseDTO {
     estacoesTelemetricas: {};
-
+    generatedFileName: string;
 }
 
 interface IRequestDTO {
@@ -31,7 +31,7 @@ interface IEstacoesTelemetricas {
 
 class GetEstacoesTelemetricasService{
     public async execute ({download,target_uf}:IRequestDTO) : Promise<IResponseDTO> {
-
+        
         const url = "http://telemetriaws1.ana.gov.br/ServiceANA.asmx/ListaEstacoesTelemetricas?statusEstacoes=&origem=";
         
         const estacoesResponse  = await axios.get(url);
@@ -63,7 +63,7 @@ class GetEstacoesTelemetricasService{
                 if(item["Municipio-UF"]){
                     const uf = item["Municipio-UF"][0].split('-')[(item["Municipio-UF"][0].split('-').length)-1];
                     if(!estacoesTelemetricas[uf]){
-                        estacoesTelemetricas[uf]=[]
+                        estacoesTelemetricas[uf]=<IEstacoesTelemetricas[]>[]
                     }
     
                     estacoesTelemetricas[uf].push({
@@ -90,15 +90,15 @@ class GetEstacoesTelemetricasService{
             estacoesTelemetricas = estacoesTelemetricas[target_uf.toUpperCase()];
         }
 
+        const responseDTO = <IResponseDTO>{
+            estacoesTelemetricas,
+        } 
+
         if(download){
             const fileName = uuid();
             saveJsonAsCsvFile(estacoesTelemetricas,fileName);
-            console.log(fileName);
+            responseDTO.generatedFileName = `${fileName}.csv`;
         }
-        
-        const responseDTO = {
-            estacoesTelemetricas
-        } 
 
         return responseDTO;
 
