@@ -63,7 +63,7 @@ export default class TelemetriaController {
         console.log(err);
         response.json({message:err})
       }
-      deleteCsvFile(`./src/temp/${filename}`)
+      //deleteCsvFile(`./src/temp/${filename}`)
     })
   }
 }

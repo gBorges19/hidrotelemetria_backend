@@ -59,7 +59,7 @@ class GetDadosHidrometeorologicosService{
 
         const hidroteletremia = <ITargetAnaFields[]>[];
         
-        if(dadosHidrometeorologicosFromJson.length){
+        if(dadosHidrometeorologicosFromJson){
             dadosHidrometeorologicosFromJson.forEach(({CodEstacao,DataHora,Chuva,Nivel,Vazao}:ITargetAnaFields)=>{
 
                 hidroteletremia.push({
